@@ -43,4 +43,45 @@ class aistocksim {
 
 
 
+
+
+    /**
+     * Konstruktor
+     *
+     * @param float $initialCash Anfängliches Bargeld
+     * @param float $riskTolerance Risikotoleranz (0.1 bis 1.0)
+     * @param string $tradingStrategy Anfängliche Handelsstrategie
+     */
+    public function __construct(float $initialCash = 100000.0, float $riskTolerance = 0.5, string $tradingStrategy = 'balanced') {
+        // Setzen aller Werte auf Default
+        $this->portfolio = [];
+        $this->marketData = [];
+        $this->stocksInfo = [];
+        $this->cash = $initialCash;
+        $this->riskTolerance = max(0.1, min(1.0, $riskTolerance));
+        $this->tradingStrategy = $tradingStrategy;
+        $this->tradeHistory = [];
+        $this->technicalIndicators = [];
+        $this->marketTrends = [];
+        $this->sectorPerformance = [];
+        $this->tradingRules = [];
+
+
+        // Initialisiere Standardregeln für den Handel der AI
+        $this->InitDefaultTradingRules();
+    }
+
+
+
+    /**
+     * Initialisiert Standardregeln für den Handel
+     *
+     * @return void
+     */
+    private function InitDefaultTradingRules(): void {
+
+        // ToDo: Regelwerk implementation
+    }
+
+
 }
