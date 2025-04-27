@@ -177,5 +177,44 @@ class aistocksim {
     }
 
 
+    /**
+     * Berechnet die Bollinger Bänder
+     *
+     * @param string $symbol Symbol der Aktie
+     * @param array $prices Array mit Preisdaten
+     * @param int $period Periode für die Bollinger Bänder
+     * @param float $deviation Standardabweichungsfaktor
+     * @return void
+     */
+    private function calculateBollingerBands(string $symbol, array $prices, int $period, float $deviation): void {
+        $priceCount = count($prices);
+        if ($priceCount < $period) {
+            $lastPrice = end($prices);
+            $this->technicalIndicators[$symbol]['bollinger_middle'] = $lastPrice;
+            $this->technicalIndicators[$symbol]['bollinger_upper'] = $lastPrice;
+            $this->technicalIndicators[$symbol]['bollinger_lower'] = $lastPrice;
+            return;
+        }
+
+        // Berechne SMA als mittleres Band
+        $middle = $this->calculateSMA($prices, $period);
+
+        // Berechne Standardabweichung
+        $sum = 0;
+        for ($i = $priceCount - $period; $i < $priceCount; $i++) {
+            $sum += pow($prices[$i] - $middle, 2);
+        }
+        $stdDev = sqrt($sum / $period);
+
+        // Berechne oberes und unteres Band
+        $upper = $middle + ($stdDev * $deviation);
+        $lower = $middle - ($stdDev * $deviation);
+
+        $this->technicalIndicators[$symbol]['bollinger_middle'] = $middle;
+        $this->technicalIndicators[$symbol]['bollinger_upper'] = $upper;
+        $this->technicalIndicators[$symbol]['bollinger_lower'] = $lower;
+    }
+
+
 
 }
