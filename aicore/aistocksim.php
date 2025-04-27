@@ -135,5 +135,47 @@ class aistocksim {
     }
 
 
+    /**
+     * Berechnet den Relative Strength Index (RSI)
+     *
+     * @param array $prices Array mit Preisdaten
+     * @param int $period Periode für den RSI
+     * @return float Berechneter RSI
+     */
+    private function calculateRSI(array $prices, int $period): float {
+        $priceCount = count($prices);
+        if ($priceCount <= $period) {
+            return 50; // Standardwert, wenn nicht genügend Daten vorhanden sind
+        }
+
+        $gains = 0;
+        $losses = 0;
+
+        // Berechne anfängliche Gewinne und Verluste
+        for ($i = 1; $i <= $period; $i++) {
+            $change = $prices[$priceCount - $i] - $prices[$priceCount - $i - 1];
+            if ($change >= 0) {
+                $gains += $change;
+            } else {
+                $losses -= $change; // Betrag des Verlusts (daher -=)
+            }
+        }
+
+        // Durchschnittliche Gewinne und Verluste
+        $avgGain = $gains / $period;
+        $avgLoss = $losses / $period;
+
+        // Berechne RS und RSI
+        if ($avgLoss == 0) {
+            return 100;
+        }
+
+        $rs = $avgGain / $avgLoss;
+        $rsi = 100 - (100 / (1 + $rs));
+
+        return $rsi;
+    }
+
+
 
 }
