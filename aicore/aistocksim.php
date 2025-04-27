@@ -217,4 +217,60 @@ class aistocksim {
 
 
 
+
+    /**
+     * Setzt die Handelsstrategie manuell
+     *
+     * @param string $strategy Die neue Handelsstrategie
+     * @return void
+     */
+    public function setTradingStrategy(string $strategy): void {
+        $validStrategies = ['aggressive_growth', 'growth', 'balanced', 'income', 'defensive'];
+        if (in_array($strategy, $validStrategies)) {
+            $this->tradingStrategy = $strategy;
+        }
+    }
+
+
+    /**
+     * Gibt den Basis-Portfolioanteil basierend auf der Strategie zurück
+     *
+     * @return float Basis-Portfolioanteil
+     */
+    private function getBasePortfolioPercentage(): float {
+        switch ($this->tradingStrategy) {
+            case 'aggressive_growth':
+                return 0.20; // 20% pro Position
+            case 'growth':
+                return 0.15; // 15% pro Position
+            case 'defensive':
+                return 0.05; // 5% pro Position
+            case 'income':
+                return 0.10; // 10% pro Position
+            default: // balanced
+                return 0.10; // 10% pro Position
+        }
+    }
+
+
+
+    /**
+     * Gibt das aktuelle Portfolio zurück
+     *
+     * @return array Aktuelles Portfolio
+     */
+    public function getPortfolio(): array {
+        return $this->portfolio;
+    }
+
+    /**
+     * Gibt das verfügbare Bargeld zurück
+     *
+     * @return float Verfügbares Bargeld
+     */
+    public function getCash(): float {
+        return $this->cash;
+    }
+
+
 }
