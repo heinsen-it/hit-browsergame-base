@@ -84,4 +84,56 @@ class aistocksim {
     }
 
 
+
+    /**
+     * Berechnet den einfachen gleitenden Durchschnitt (SMA)
+     *
+     * @param array $prices Array mit Preisdaten
+     * @param int $period Periode für den gleitenden Durchschnitt
+     * @return float Berechneter SMA
+     */
+    private function calcSMA(array $prices, int $period): float {
+        $priceCount = count($prices);
+        if ($priceCount < $period) {
+            return end($prices);
+        }
+
+        $sum = 0;
+        for ($i = $priceCount - $period; $i < $priceCount; $i++) {
+            $sum += $prices[$i];
+        }
+
+        return $sum / $period;
+    }
+
+
+    /**
+     * Berechnet den exponentiellen gleitenden Durchschnitt (EMA)
+     *
+     * @param array $prices Array mit Preisdaten
+     * @param int $period Periode für den gleitenden Durchschnitt
+     * @return float Berechneter EMA
+     */
+    private function calcEMA(array $prices, int $period): float {
+        $priceCount = count($prices);
+        if ($priceCount < $period) {
+            return end($prices);
+        }
+
+        // Multiplier: (2 / (period + 1))
+        $multiplier = 2 / ($period + 1);
+
+        // Start mit SMA für die erste EMA-Berechnung
+        $ema = $this->calcSMA(array_slice($prices, 0, $period), $period);
+
+        // Berechne EMA für die verbleibenden Preise
+        for ($i = $period; $i < $priceCount; $i++) {
+            $ema = ($prices[$i] - $ema) * $multiplier + $ema;
+        }
+
+        return $ema;
+    }
+
+
+
 }
