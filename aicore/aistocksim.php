@@ -84,6 +84,60 @@ class aistocksim {
     }
 
 
+    /**
+     * Aktualisiert alle technischen Indikatoren für jede Aktie
+     *
+     * @return void
+     */
+    private function updateTechnicalIndicators(): void {
+        foreach ($this->marketData as $symbol => $data) {
+            // Nur berechnen, wenn wir genügend Daten haben
+            if (count($data) < 20) {
+                continue;
+            }
+
+            // Extrahiere die Schlusskurse
+            $closePrices = array_column($data, 'close');
+
+            // Berechne SMA (Simple Moving Average)
+            $this->technicalIndicators[$symbol]['sma_20'] = $this->calcSMA($closePrices, 20);
+
+            if (count($data) >= 50) {
+                $this->technicalIndicators[$symbol]['sma_50'] = $this->calcSMA($closePrices, 50);
+            }
+
+            if (count($data) >= 200) {
+                $this->technicalIndicators[$symbol]['sma_200'] = $this->calcSMA($closePrices, 200);
+            }
+
+            // Berechne EMA (Exponential Moving Average)
+            $this->technicalIndicators[$symbol]['ema_12'] = $this->calcEMA($closePrices, 12);
+            $this->technicalIndicators[$symbol]['ema_26'] = $this->calcEMA($closePrices, 26);
+
+            // Berechne MACD (Moving Average Convergence Divergence)
+            $this->technicalIndicators[$symbol]['macd'] =
+                $this->technicalIndicators[$symbol]['ema_12'] - $this->technicalIndicators[$symbol]['ema_26'];
+
+            // Berechne MACD Signal Line (9-day EMA of MACD)
+            $macdHistory = [];
+            $dataCount = count($data);
+            for ($i = max(0, $dataCount - 20); $i < $dataCount; $i++) {
+                $macdHistory[] = $this->technicalIndicators[$symbol]['macd'];
+            }
+            $this->technicalIndicators[$symbol]['macd_signal'] = $this->calcEMA($macdHistory, 9);
+
+            // Berechne MACD Histogram
+            $this->technicalIndicators[$symbol]['macd_histogram'] =
+                $this->technicalIndicators[$symbol]['macd'] - $this->technicalIndicators[$symbol]['macd_signal'];
+
+            // Berechne RSI (Relative Strength Index)
+            $this->technicalIndicators[$symbol]['rsi'] = $this->calcRSI($closePrices, 14);
+
+            // Berechne Bollinger Bands
+            $this->calcBollingerBands($symbol, $closePrices, 20, 2);
+        }
+    }
+
 
     /**
      * Berechnet den einfachen gleitenden Durchschnitt (SMA)
@@ -142,7 +196,7 @@ class aistocksim {
      * @param int $period Periode für den RSI
      * @return float Berechneter RSI
      */
-    private function calculateRSI(array $prices, int $period): float {
+    private function calcRSI(array $prices, int $period): float {
         $priceCount = count($prices);
         if ($priceCount <= $period) {
             return 50; // Standardwert, wenn nicht genügend Daten vorhanden sind
@@ -186,7 +240,7 @@ class aistocksim {
      * @param float $deviation Standardabweichungsfaktor
      * @return void
      */
-    private function calculateBollingerBands(string $symbol, array $prices, int $period, float $deviation): void {
+    private function calcBollingerBands(string $symbol, array $prices, int $period, float $deviation): void {
         $priceCount = count($prices);
         if ($priceCount < $period) {
             $lastPrice = end($prices);
@@ -197,7 +251,7 @@ class aistocksim {
         }
 
         // Berechne SMA als mittleres Band
-        $middle = $this->calculateSMA($prices, $period);
+        $middle = $this->calcSMA($prices, $period);
 
         // Berechne Standardabweichung
         $sum = 0;
