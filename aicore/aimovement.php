@@ -75,4 +75,59 @@ class aimovement {
         $this->regions[$regionId]['owner'] = $owner;
     }
 
+
+    /**
+     * Setzt die Truppeninformationen
+     *
+     * @param array $troopData Informationen über die Truppen
+     * @return void
+     */
+    public function setTroopData(array $troopData): void {
+        $this->troops = $troopData;
+
+        // Aktualisiere die Truppenanzahl in den Regionen
+        foreach ($troopData as $regionId => $count) {
+            if (isset($this->regions[$regionId])) {
+                $this->regions[$regionId]['troops'] = $count;
+            }
+        }
+    }
+
+    /**
+     * Setzt die KI-Strategie
+     *
+     * @param string $strategy Strategie ('aggressive', 'defensive', 'balanced', 'expand', 'consolidate')
+     * @return void
+     */
+    public function setAIStrategy(string $strategy): void {
+        $validStrategies = ['aggressive', 'defensive', 'balanced', 'expand', 'consolidate'];
+        $this->aiStrategy = in_array($strategy, $validStrategies) ? $strategy : 'balanced';
+    }
+
+    /**
+     * Berechnet den Grenzsicherheitswert einer Region
+     *
+     * @param string $regionId ID der Region
+     * @return float Grenzsicherheitswert
+     */
+    private function calculateBorderSecurity(string $regionId): float {
+        if (!isset($this->map[$regionId])) {
+            return 0;
+        }
+
+        $connections = $this->map[$regionId];
+        $ownedConnections = 0;
+
+        foreach ($connections as $connectedRegion) {
+            if (isset($this->regions[$connectedRegion]) &&
+                $this->regions[$connectedRegion]['owner'] === 'ai') {
+                $ownedConnections++;
+            }
+        }
+
+        // Verhältnis der eigenen Verbindungen zur Gesamtzahl der Verbindungen
+        return $connections ? $ownedConnections / count($connections) : 0;
+    }
+
+
 }
