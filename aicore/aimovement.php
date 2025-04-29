@@ -130,4 +130,38 @@ class aimovement {
     }
 
 
+    /**
+     * Berechnet die Bedrohungslevel für alle Regionen
+     *
+     * @return void
+     */
+    public function calculateThreatLevels(): void {
+        foreach ($this->regions as $regionId => $region) {
+            $threatLevel = 0;
+
+            // Nur für KI-kontrollierte oder neutrale Regionen berechnen
+            if ($region['owner'] !== 'player') {
+                // Prüfe angrenzende Regionen auf feindliche Truppen
+                if (isset($this->map[$regionId])) {
+                    foreach ($this->map[$regionId] as $connectedRegion) {
+                        if (isset($this->regions[$connectedRegion]) &&
+                            $this->regions[$connectedRegion]['owner'] === 'player') {
+                            // Bedrohung basierend auf feindlichen Truppen und deren Entfernung
+                            $enemyTroops = $this->regions[$connectedRegion]['troops'] ?? 0;
+                            $threatLevel += $enemyTroops; // Direkt angrenzend
+
+                            // Sekundäre Bedrohung von weiter entfernten Regionen
+                            $secondaryThreats = $this->calculateSecondaryThreats($connectedRegion, $regionId);  //Offener Aspekt TODO
+                            $threatLevel += $secondaryThreats * 0.5; // Halbierter Einfluss
+                        }
+                    }
+                }
+            }
+
+            $this->threatLevels[$regionId] = $threatLevel;
+        }
+    }
+
+
+
 }
