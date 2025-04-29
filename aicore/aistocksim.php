@@ -327,4 +327,61 @@ class aistocksim {
     }
 
 
+
+
+    /**
+     * Analysiert die Performance der verschiedenen Sektoren
+     *
+     * @return void
+     */
+    private function analyzeSectorPerformance(): void {
+        $sectorReturns = [];
+        $sectorVolume = [];
+
+        // Sammle Daten für jeden Sektor
+        foreach ($this->stocksInfo as $symbol => $info) {
+            $sector = $info['sector'];
+
+            if (!isset($this->marketData[$symbol]) || count($this->marketData[$symbol]) < 2) {
+                continue;
+            }
+
+            // Berechne prozentuale Änderung für den letzten Tag
+            $data = $this->marketData[$symbol];
+            $dataCount = count($data);
+            $currentPrice = $data[$dataCount - 1]['close'];
+            $previousPrice = $data[$dataCount - 2]['close'];
+            $return = ($currentPrice - $previousPrice) / $previousPrice;
+
+            if (!isset($sectorReturns[$sector])) {
+                $sectorReturns[$sector] = [];
+                $sectorVolume[$sector] = 0;
+            }
+
+            $sectorReturns[$sector][] = $return;
+            $sectorVolume[$sector] += $data[$dataCount - 1]['volume'];
+        }
+
+        // Berechne durchschnittliche Rendite für jeden Sektor
+        foreach ($sectorReturns as $sector => $returns) {
+            $avgReturn = array_sum($returns) / count($returns);
+
+            $this->sectorPerformance[$sector] = [
+                'avg_return' => $avgReturn,
+                'volume' => $sectorVolume[$sector],
+                'trend' => $avgReturn > 0 ? 'up' : 'down',
+                'strength' => abs($avgReturn) * 100 // Stärke des Trends in Prozent
+            ];
+        }
+
+        // Sortiere Sektoren nach Performance
+        uasort($this->sectorPerformance, function($a, $b) {
+            return $b['avg_return'] <=> $a['avg_return'];
+        });
+    }
+
+
+
+
+
 }
