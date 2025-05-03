@@ -21,10 +21,10 @@ class aihandler {
     /** @var GameAI $gameAI KI-Entscheidungsengine für allgemeine Spielentscheidungen */
     private $gameAI;
 
-    /** @var TroopMovementCalculator $troopMovement KI für militärische Bewegungen */
+    /** @var aimovement $troopMovement KI für militärische Bewegungen */
     private $troopMovement;
 
-    /** @var AIStockTrader $economyManager KI für wirtschaftliche Entscheidungen */
+    /** @var aistocksim $economyManager KI für wirtschaftliche Entscheidungen */
     private $economyManager;
 
     /** @var array $subsystems Weitere KI-Subsysteme */
@@ -59,6 +59,63 @@ class aihandler {
 
     /** @var float $adaptability Anpassungsfähigkeit (0.0 bis 1.0) */
     private $adaptability;
+
+
+
+
+    public function __construct(string $factionName, string $personalityType = 'balanced', array $initialState = []) {
+        $this->factionName = $factionName;
+        $this->personalityType = $personalityType;
+        $this->globalState = $initialState;
+
+        // Initialisiere die Persönlichkeitsmerkmale basierend auf dem Typ
+        $this->initializePersonality();
+
+    }
+
+
+
+    private function initializePersonality(): void {
+        // Standardwerte
+        $this->aggression = 0.5;
+        $this->caution = 0.5;
+        $this->expansion = 0.5;
+        $this->adaptability = 0.5;
+
+        // Passe die Werte basierend auf dem Persönlichkeitstyp an
+        switch ($this->personalityType) {
+            case 'aggressive':
+                break;
+
+            case 'diplomatic':
+
+                break;
+
+            case 'economic':
+
+                break;
+
+            case 'scientific':
+
+                break;
+
+            default: // balanced
+
+                break;
+        }
+
+        // Erstelle die Persönlichkeitsmerkmale
+        $this->personalityTraits = [
+            'aggression' => $this->aggression,
+            'caution' => $this->caution,
+            'expansion' => $this->expansion,
+            'adaptability' => $this->adaptability,
+            'primary_type' => $this->personalityType,
+        ];
+    }
+
+
+
 
 
 
