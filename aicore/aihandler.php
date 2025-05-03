@@ -116,6 +116,31 @@ class aihandler {
 
 
 
+    // Idee zur Bewertung eines Diplomatischen Status
+    /**
+     * Bewertet den diplomatischen Status
+     *
+     * @return float Diplomatischer Status (0.0 bis 1.0)
+     */
+    private function assessDiplomaticStatus(): float {
+        $totalFactions = 0;
+        $positiveRelations = 0;
+
+        foreach (($this->globalState['factions'] ?? []) as $faction) {
+            $totalFactions++;
+
+            if ($faction['relation'] === 'alliance' || $faction['relation'] === 'friendly') {
+                $positiveRelations++;
+            } elseif ($faction['relation'] === 'neutral') {
+                $positiveRelations += 0.5;
+            }
+        }
+
+        // Berechne das Verhältnis positiver Beziehungen
+        $diplomaticRatio = $totalFactions > 0 ? $positiveRelations / $totalFactions : 0.5;
+
+        return $diplomaticRatio;
+    }
 
 
 
