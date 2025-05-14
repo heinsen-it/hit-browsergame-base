@@ -433,10 +433,7 @@ class aistocksim {
 
 
 
-
-
-
-    /**
+      /**
      * Berechnet die ideale Positionsgröße für einen Kauf
      *
      * @param string $symbol Aktien-Symbol
@@ -471,8 +468,26 @@ class aistocksim {
         return $quantity;
     }
 
+    /**
+     * Berechnet den Gesamtwert des Portfolios (Bargeld + Aktienbesitz)
+     *
+     * @return float Gesamtwert des Portfolios
+     */
+    public function calculatePortfolioValue(): float {
+        $stocksValue = 0;
 
+        foreach ($this->portfolio as $symbol => $position) {
+            if (!isset($this->marketData[$symbol])) {
+                continue;
+            }
 
+            $data = $this->marketData[$symbol];
+            $currentPrice = end($data)['close'];
+            $stocksValue += $currentPrice * $position['quantity'];
+        }
+
+        return $this->cash + $stocksValue;
+    }
 
 
 }
