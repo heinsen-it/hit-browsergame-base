@@ -436,4 +436,43 @@ class aistocksim {
 
 
 
+    /**
+     * Berechnet die ideale Positionsgröße für einen Kauf
+     *
+     * @param string $symbol Aktien-Symbol
+     * @param float $score Kaufscore
+     * @return int Anzahl der zu kaufenden Aktien
+     */
+    private function calculatePositionSize(string $symbol, float $score): int {
+        if (!isset($this->marketData[$symbol])) {
+            return 0;
+        }
+
+        $data = $this->marketData[$symbol];
+        $currentPrice = end($data)['close'];
+
+        // Basis-Portfolioanteil basierend auf der Strategie
+        $basePortfolioPercentage = $this->getBasePortfolioPercentage();
+
+        // Anpassung basierend auf dem Score
+        $adjustedPercentage = $basePortfolioPercentage * ($score / 5.0);
+
+        // Anpassung basierend auf der Risikotoleranz
+        $adjustedPercentage *= $this->riskTolerance;
+
+        // Begrenze den maximalen Prozentsatz pro Position
+        $maxPercentage = 0.25; // Maximal 25% des Bargeldes für eine einzelne Position
+        $finalPercentage = min($adjustedPercentage, $maxPercentage);
+
+        // Berechne Anzahl der Aktien basierend auf verfügbarem Bargeld
+        $amountToInvest = $this->cash * $finalPercentage;
+        $quantity = floor($amountToInvest / $currentPrice);
+
+        return $quantity;
+    }
+
+
+
+
+
 }
