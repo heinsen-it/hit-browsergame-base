@@ -162,6 +162,64 @@ class aimovement {
         }
     }
 
+    /**
+     * Gibt die vorläufige Gewichtung für Tests basierend auf der aktuellen Strategie zurück
+     *
+     * @return array Gewichtungen für die verschiedenen Faktoren
+     */
+    private function getStrategyWeights(): array {
+        $weights = [
+            'base' => 1.0,
+            'resource' => 1.0,
+            'connectivity' => 1.0,
+            'border' => 1.0,
+            'defensive' => 1.0,
+            'owned' => 1.0,
+            'enemy' => 1.0,
+            'neutral' => 1.0,
+        ];
+
+        // Modifiziere die Gewichtungen je nach Strategie
+        switch ($this->aiStrategy) {
+            case 'aggressive':
+                $weights['enemy'] = 2.0;
+                $weights['neutral'] = 1.5;
+                $weights['resource'] = 1.2;
+                $weights['defensive'] = 0.8;
+                $weights['border'] = 0.7;
+                break;
+
+            case 'defensive':
+                $weights['owned'] = 1.5;
+                $weights['border'] = 2.0;
+                $weights['defensive'] = 2.0;
+                $weights['enemy'] = 0.8;
+                $weights['neutral'] = 0.6;
+                break;
+
+            case 'expand':
+                $weights['neutral'] = 2.0;
+                $weights['connectivity'] = 1.5;
+                $weights['resource'] = 1.5;
+                $weights['border'] = 0.8;
+                break;
+
+            case 'consolidate':
+                $weights['owned'] = 1.8;
+                $weights['border'] = 1.5;
+                $weights['connectivity'] = 1.2;
+                $weights['enemy'] = 0.6;
+                $weights['neutral'] = 0.7;
+                break;
+
+            default: // balanced
+                // Standardwerte beibehalten
+                break;
+        }
+
+        return $weights;
+    }
+
 
 
 }
