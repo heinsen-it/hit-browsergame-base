@@ -380,11 +380,60 @@ class aistocksim {
         });
     }
 
-
-
-
-
     /**
+     * Passt den Score basierend auf der aktuellen Handelsstrategie an
+     *
+     * @param float $score Ursprünglicher Score
+     * @param string $action Handelstyp ('buy' oder 'sell')
+     * @return float Angepasster Score
+     */
+    private function adjustScoreByStrategy(float $score, string $action): float {
+        $adjustmentFactor = 1.0;
+
+        switch ($this->tradingStrategy) {
+            case 'aggressive_growth':
+                if ($action === 'buy') {
+                    $adjustmentFactor = 1.5;
+                } else { // sell
+                    $adjustmentFactor = 0.7;
+                }
+                break;
+
+            case 'growth':
+                if ($action === 'buy') {
+                    $adjustmentFactor = 1.2;
+                } else { // sell
+                    $adjustmentFactor = 0.8;
+                }
+                break;
+
+            case 'defensive':
+                if ($action === 'buy') {
+                    $adjustmentFactor = 0.7;
+                } else { // sell
+                    $adjustmentFactor = 1.3;
+                }
+                break;
+
+            case 'income':
+                if ($action === 'buy') {
+                    $adjustmentFactor = 0.9;
+                } else { // sell
+                    $adjustmentFactor = 1.1;
+                }
+                break;
+
+            default: // balanced
+                $adjustmentFactor = 1.0;
+                break;
+        }
+
+        return $score * $adjustmentFactor;
+    }
+
+
+
+      /**
      * Berechnet die ideale Positionsgröße für einen Kauf
      *
      * @param string $symbol Aktien-Symbol
@@ -419,8 +468,26 @@ class aistocksim {
         return $quantity;
     }
 
+    /**
+     * Berechnet den Gesamtwert des Portfolios (Bargeld + Aktienbesitz)
+     *
+     * @return float Gesamtwert des Portfolios
+     */
+    public function calculatePortfolioValue(): float {
+        $stocksValue = 0;
 
+        foreach ($this->portfolio as $symbol => $position) {
+            if (!isset($this->marketData[$symbol])) {
+                continue;
+            }
 
+            $data = $this->marketData[$symbol];
+            $currentPrice = end($data)['close'];
+            $stocksValue += $currentPrice * $position['quantity'];
+        }
+
+        return $this->cash + $stocksValue;
+    }
 
 
 }

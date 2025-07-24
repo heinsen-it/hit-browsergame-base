@@ -221,5 +221,29 @@ class aimovement {
     }
 
 
+    /**
+     * Berechnet sekundäre Bedrohungen aus Regionen, die an feindliche Regionen grenzen
+     *
+     * @param string $enemyRegionId ID der feindlichen Region
+     * @param string $targetRegionId ID der Zielregion (um direkte Verbindungen zu vermeiden)
+     * @return float Summe der sekundären Bedrohungen
+     */
+    private function calculateSecondaryThreats(string $enemyRegionId, string $targetRegionId): float {
+        $secondaryThreats = 0;
+
+        if (isset($this->map[$enemyRegionId])) {
+            foreach ($this->map[$enemyRegionId] as $secondaryRegion) {
+                // Vermeide die Zielregion und betrachte nur feindliche Regionen
+                if ($secondaryRegion !== $targetRegionId &&
+                    isset($this->regions[$secondaryRegion]) &&
+                    $this->regions[$secondaryRegion]['owner'] === 'player') {
+                    $secondaryThreats += $this->regions[$secondaryRegion]['troops'] ?? 0;
+                }
+            }
+        }
+
+        return $secondaryThreats;
+    }
+
 
 }
