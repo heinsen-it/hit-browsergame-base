@@ -490,4 +490,97 @@ class aistocksim {
     }
 
 
+    /**
+     * Erste Version dessen: Generiert eine Zusammenfassung des Portfolios
+     *
+     * @return array Portfolio-Zusammenfassung
+     */
+    public function generatePortfolioSummary(): array {
+        $totalValue = $this->calculatePortfolioValue();
+        $initialValue = $this->cash; // Annahme: Gesamtwert des initialen Bargelds
+
+        foreach ($this->tradeHistory as $trade) {
+            if ($trade['type'] === 'buy') {
+                $initialValue += $trade['total'];
+            } elseif ($trade['type'] === 'sell') {
+                $initialValue -= $trade['total'] - $trade['profit_loss'];
+            }
+        }
+
+        $overallReturn = ($totalValue - $initialValue) / $initialValue;
+
+        $holdings = [];
+        $totalStocksValue = 0;
+
+        foreach ($this->portfolio as $symbol => $position) {
+            if (!isset($this->marketData[$symbol]) || !isset($this->stocksInfo[$symbol])) {
+                continue;
+            }
+
+            $data = $this->marketData[$symbol];
+            $currentPrice = end($data)['close'];
+            $marketValue = $currentPrice * $position['quantity'];
+            $costBasis = $position['avg_price'] * $position['quantity'];
+            $profitLoss = $marketValue - $costBasis;
+            $returnPercentage = $costBasis > 0 ? $profitLoss / $costBasis : 0;
+
+            $holdings[$symbol] = [
+                'symbol' => $symbol,
+                'name' => $this->stocksInfo[$symbol]['name'],
+                'sector' => $this->stocksInfo[$symbol]['sector'],
+                'quantity' => $position['quantity'],
+                'avg_price' => $position['avg_price'],
+                'current_price' => $currentPrice,
+                'market_value' => $marketValue,
+                'cost_basis' => $costBasis,
+                'profit_loss' => $profitLoss,
+                'return_percentage' => $returnPercentage
+            ];
+
+            $totalStocksValue += $marketValue;
+        }
+
+        // Sortiere nach Marktwert (absteigend)
+        uasort($holdings, function($a, $b) {
+            return $b['market_value'] <=> $a['market_value'];
+        });
+
+        // Berechne Sektorallokation
+        $sectorAllocation = [];
+        foreach ($holdings as $holding) {
+            $sector = $holding['sector'];
+            if (!isset($sectorAllocation[$sector])) {
+                $sectorAllocation[$sector] = 0;
+            }
+            $sectorAllocation[$sector] += $holding['market_value'];
+        }
+
+        // Berechne Sektoranteile
+        foreach ($sectorAllocation as $sector => $value) {
+            $sectorAllocation[$sector] = [
+                'value' => $value,
+                'percentage' => $totalStocksValue > 0 ? $value / $totalStocksValue : 0
+            ];
+        }
+
+        // Sortiere nach Wert (absteigend)
+        uasort($sectorAllocation, function($a, $b) {
+            return $b['value'] <=> $a['value'];
+        });
+
+        return [
+            'cash' => $this->cash,
+            'stocks_value' => $totalStocksValue,
+            'total_value' => $totalValue,
+            'overall_return' => $overallReturn,
+            'overall_return_percentage' => $overallReturn * 100,
+            'strategy' => $this->tradingStrategy,
+            'risk_tolerance' => $this->riskTolerance,
+            'holdings' => $holdings,
+            'sector_allocation' => $sectorAllocation,
+            'timestamp' => time()
+        ];
+    }
+
+
 }
